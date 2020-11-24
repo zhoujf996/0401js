@@ -59,9 +59,23 @@ import teacher from "@/api/edu/teacher";
             }   
         },
         methods: {
+
+            //1.怎么判断是否是新增还是修改
+            //2.根据teacher.id来判断
+
             saveOrUpdate(){
+
                 //当点击按钮的时候，让保存按钮为浅色，不启用
-                saveBtnDisabled:true
+                this.saveBtnDisabled=true
+
+                if(this.teacher.id){
+                    this.updateById()
+                }else{
+                    this.save()
+                }
+
+            },
+            save(){
                 teacher.save(this.teacher)
                 .then(response=>{
                     return this.$message({
@@ -78,6 +92,25 @@ import teacher from "@/api/edu/teacher";
                         })
                 })
             },
+            updateById(){
+                teacher.updateById(this.teacher)
+                .then(response=>{
+                    //修改提示
+                    this.$message({
+                        type: 'success',
+                        message: '修改成功'
+                    })
+                })
+                .then(response=>{
+                    this.$route.push({path:"/teacher/list"})
+                })
+                .catch(response=>{
+                    this.$message({
+                        type: 'error',
+                        message: response.data.message
+                    })
+                })
+            },
              selectById(id){
               teacher.selectById(id)
               .then(response=>{
@@ -91,6 +124,5 @@ import teacher from "@/api/edu/teacher";
               })
         }   
     }
-       
     }
 </script>

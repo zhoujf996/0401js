@@ -33,6 +33,13 @@ export default {
     return request({
       url: `${teacher_api}/${id}`,
       method: 'get'
-      })
+    })
+  },
+  updateById(teacher) {
+    return request({
+      url: `${teacher_api}/update`,
+      method: 'put',
+      data: teacher
+    })
   }
 }
