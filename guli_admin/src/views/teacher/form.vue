@@ -33,96 +33,111 @@
   </div>
 </template>
 
-
 <script>
+import teacher from "@/api/edu/teacher"
 
-import teacher from "@/api/edu/teacher";
+const defaultFrom = {
+          name: '',
+          sort: 0,
+          level: 1,
+          career: '',
+          intro: '',
+          avatar: ''
+      }
 
-    export default{
-        data () {
-            return {
-                teacher: {
-                     name: '',
-                     sort: 0,
-                     level: 1,
-                     career: '',
-                     intro: '',
-                     avatar: ''
-                },
-                saveBtnDisabled:false //不启用Disabled，保存按钮为亮色
-            }
-        },
-        created() {//在加载的时候实现这个方法，可以调用这个根据id来查询方法
-            //执行此方法，获取我们的参数
-            if(this.$route.params && this.$route.params.id){//当加载页面的时候就要获取参数的值
-                    this.selectById(this.$route.params.id)
-            }   
-        },
-        methods: {
-
-            //1.怎么判断是否是新增还是修改
-            //2.根据teacher.id来判断
-
-            saveOrUpdate(){
-
-                //当点击按钮的时候，让保存按钮为浅色，不启用
-                this.saveBtnDisabled=true
-
-                if(this.teacher.id){
-                    this.updateById()
-                }else{
-                    this.save()
-                }
-
-            },
-            save(){
-                teacher.save(this.teacher)
-                .then(response=>{
-                    return this.$message({
-                        type: 'success',
-                        message: '保存成功!'
-                        })
-                }).then(response=>{
-                    this.$router.push({path:"/teacher/list"})
-                })
-                .catch(respone=>{
-                     return this.$message({
-                        type: 'error',
-                        message: '保存失败!'
-                        })
-                })
-            },
-            updateById(){
-                teacher.updateById(this.teacher)
-                .then(response=>{
-                    //修改提示
-                    this.$message({
-                        type: 'success',
-                        message: '修改成功'
-                    })
-                })
-                .then(response=>{
-                    this.$route.push({path:"/teacher/list"})
-                })
-                .catch(response=>{
-                    this.$message({
-                        type: 'error',
-                        message: response.data.message
-                    })
-                })
-            },
-             selectById(id){
-              teacher.selectById(id)
-              .then(response=>{
-                  this.teacher=response.data.teacher
-              })
-              .catch(response=>{
-                  this.$message({
-                      type:'error',
-                      message:'获取失败'
-                  })
-              })
-        }   
+export default {
+  data () {
+    return {
+      teacher: defaultFrom,
+      saveBtnDisabled: false // 不启用disabled， 保存按钮为亮色
     }
+  },
+  watch: {
+    $route(to, from) {
+      //当监听的路由这个方法执行的时候，
+      //我们是不是判断此路由过来的参数是否存在，
+      //如果不存在，那就说明是新增
+      //如果存在那么说明修改过来的
+      this.init()
     }
+  },
+  created () {// 在加载的时候执行了这个方法，可以调用这个根据ID来插叙的方法
+      // 执行此方法、获取我们的参数
+      this.init()
+  },
+  methods: {
+    init(){
+        if(this.$route.params && this.$route.params.id){ // 当加载页面的时候就要获取参数的值了
+            this.selectById(this.$route.params.id)
+        } else{
+            //this.teacher = defaultFrom
+            this.teacher = {...defaultFrom}
+        }
+    },
+    // 1、 怎么判断是否是新增还是修改
+    // 2、 根据teacher.id来判断
+
+    saveOrUpdate(){
+      //当点击按钮的时候，让保存按钮为浅色， 不启用
+      this.saveBtnDisabled = true
+
+      if(this.teacher.id){
+        this.updateById()
+      } else{
+        this.save()
+      }
+
+    },
+    save(){
+      teacher.save(this.teacher)
+        .then(response => {
+          return this.$message({
+            type: 'success',
+            message: '保存成功!'
+          })
+        })
+        .then(response => {
+          this.$router.push({path : "/teacher/list"})
+        })
+        .catch(response => {
+          return this.$message({
+            type: 'error',
+            message: '保存失败!'
+          })
+        })
+    },
+    updateById(){
+        teacher.updateById(this.teacher)
+          .then(response => {
+            //修改提示
+            this.$message({
+              type:'success',
+              message:'修改成功'
+            })
+          })
+          .then(response => {
+            this.$router.push({path:"/teacher/list"})
+          })
+          .catch(response => {
+            this.$message({
+              type:'error',
+              message:response.data.message
+            })
+          })
+    },
+    selectById(id){
+        teacher.selectById(id)
+          .then(response => {
+             this.teacher = response.data.teacher
+          }).catch(response => {
+            this.$message({
+              type:'error',
+              message:"获取失败"
+            })
+          })
+    }
+  }
+}
 </script>
+
+s
