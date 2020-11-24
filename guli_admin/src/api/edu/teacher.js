@@ -28,5 +28,11 @@ export default {
       method: 'post',
       data: teacher
     })
+  },
+  selectById(id) {
+    return request({
+      url: `${teacher_api}/${id}`,
+      method: 'get'
+      })
   }
 }

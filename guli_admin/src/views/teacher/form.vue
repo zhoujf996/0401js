@@ -52,8 +52,11 @@ import teacher from "@/api/edu/teacher";
                 saveBtnDisabled:false //不启用Disabled，保存按钮为亮色
             }
         },
-        created() {
-            
+        created() {//在加载的时候实现这个方法，可以调用这个根据id来查询方法
+            //执行此方法，获取我们的参数
+            if(this.$route.params && this.$route.params.id){//当加载页面的时候就要获取参数的值
+                    this.selectById(this.$route.params.id)
+            }   
         },
         methods: {
             saveOrUpdate(){
@@ -74,7 +77,20 @@ import teacher from "@/api/edu/teacher";
                         message: '保存失败!'
                         })
                 })
-            }
-        }
+            },
+             selectById(id){
+              teacher.selectById(id)
+              .then(response=>{
+                  this.teacher=response.data.teacher
+              })
+              .catch(response=>{
+                  this.$message({
+                      type:'error',
+                      message:'获取失败'
+                  })
+              })
+        }   
+    }
+       
     }
 </script>
