@@ -35,7 +35,7 @@
       <el-button type="primary" icon="el-icon-search" @click="getPageList()">查询</el-button>
       <el-button type="default" @click="resetData()">清空</el-button>
     </el-form>
-    
+
     <!-- 表格 -->
     <el-table
       v-loading="listLoading"
@@ -43,37 +43,35 @@
       element-loading-text="数据加载中"
       border
       fit
-      highlight-current-row>
-
-      <el-table-column
-        label="序号"
-        width="70"
-        align="center">
-        <template slot-scope="scope">
-          {{ (page - 1) * limit + scope.$index + 1 }}
-        </template>
+      highlight-current-row
+    >
+      <el-table-column label="序号" width="70" align="center">
+        <template slot-scope="scope">{{ (page - 1) * limit + scope.$index + 1 }}</template>
       </el-table-column>
 
-      <el-table-column prop="name" label="名称" width="80" />
+      <el-table-column prop="name" label="名称" width="80"/>
 
       <el-table-column label="头衔" width="80">
-        <template slot-scope="scope">
-          {{ scope.row.level===1?'高级讲师':'首席讲师' }}
-        </template>
+        <template slot-scope="scope">{{ scope.row.level===1?'高级讲师':'首席讲师' }}</template>
       </el-table-column>
 
-      <el-table-column prop="intro" label="资历" />
+      <el-table-column prop="intro" label="资历"/>
 
       <el-table-column prop="gmtCreate" label="添加时间" width="160"/>
 
-      <el-table-column prop="sort" label="排序" width="60" />
+      <el-table-column prop="sort" label="排序" width="60"/>
 
       <el-table-column label="操作" width="200" align="center">
         <template slot-scope="scope">
           <router-link :to="'/edu/teacher/edit/'+scope.row.id">
             <el-button type="primary" size="mini" icon="el-icon-edit">修改</el-button>
           </router-link>
-          <el-button type="danger" size="mini" icon="el-icon-delete" @click="removeDataById(scope.row.id)">删除</el-button>
+          <el-button
+            type="danger"
+            size="mini"
+            icon="el-icon-delete"
+            @click="removeDataById(scope.row.id)"
+          >删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -87,51 +85,85 @@
       layout="total, prev, pager, next, jumper"
       @current-change="getPageList"
     />
-
   </div>
 </template>
 
 
 <script>
 //引用teacher.js
-import teacher from '@/api/edu/teacher'
+import teacher from "@/api/edu/teacher";
 
 export default {
-    //定义数据变量
-     data(){
-        return{
-            listLoading: true, // 是否显示loading信息
-            list: null, // 数据列表
-            total: 0, // 总记录数
-            page: 1, // 页码
-            limit: 10, // 每页记录数
-            searchObj: {}// 查询条件
+  //定义数据变量
+  data() {
+    return {
+      listLoading: true, // 是否显示loading信息
+      list: null, // 数据列表
+      total: 0, // 总记录数
+      page: 1, // 页码
+      limit: 10, // 每页记录数
+      searchObj: {} // 查询条件
+    };
+  },
+  //初始化，在加载的时候执行
+  created() {
+    //调用查询列表的方法
+    this.getPageList();
+  },
+  //存放方法的
+  methods: {
+    getPageList(page = 1) {
+      this.page = page;
+      //发送请求从后台获取数据
+      teacher
+        .getPageList(this.page, this.limit, this.searchObj)
+        .then(response => {
+          console.log(response);
+          console.log(response.data);
+          this.list = response.data.rows;
+          this.total = response.data.total;
+          //当数据获取完后把Loading给关闭
+          this.listLoading = false;
+        })
+        .catch(response => {
+          console.log(response.data.message);
+        });
+    },
+    resetData() {
+      this.searchObj = {};
+      this.getPageList();
+    },
+    removeDataById(id){
+      //提示：是否删除
+       this.$confirm('此操作将永久删除该记录, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+      }).then(()=>{
+       return teacher.removeDataById(id)
+      }).then(()=>{
+        //已经向后台发送请求了并且是正确的了
+        this.$message({
+          type:'success',
+          message:'删除成功'
+        })
+        //刷新页面
+        this.getPageList()
+      }).catch((response)=>{//不管是点击取消还是删除失败都走这个catch
+        if(response=='cancel'){
+          this.$message({
+            type:'info',
+            message:'已经取消删除'
+          })
+        }else{
+          this.$message({
+            type:'error',
+            message:'删除失败'
+          })
         }
-     },
-     //初始化，在加载的时候执行
-     created () {
-         //调用查询列表的方法
-         this.getPageList()
-     },
-     //存放方法的
-     methods: {
-         getPageList(page = 1){
-              this.page = page
-             //发送请求从后台获取数据
-             teacher.getPageList(this.page,this.limit,this.searchObj)
-             .then(response=>{
-                 console.log(response)
-                 console.log(response.data)
-                 this.list=response.data.rows
-                 this.total=response.data.total
-                 //当数据获取完后把Loading给关闭
-                 this.listLoading=false
-             })
-             .catch(response=>{
-                console.log(response.data.message)
-             })
-         }
-     }
-}
+      })
+    }
+  }
+};
 </script>
 

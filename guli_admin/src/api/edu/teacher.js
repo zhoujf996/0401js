@@ -15,5 +15,18 @@ export default {
       method: 'post',
       data: searchObj
     })
+  },
+  removeDataById(id) {
+    return request({
+      url: `${teacher_api}/${id}`,
+      method: 'delete'
+    })
+  },
+  save(teacher) {
+    return request({
+      url: `${teacher_api}/save`,
+      method: 'post',
+      data: teacher
+    })
   }
 }
