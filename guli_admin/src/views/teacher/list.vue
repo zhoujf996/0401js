@@ -1,6 +1,41 @@
 <template>
   <div class="app-container">
-    讲师列表
+    <!--查询表单-->
+    <el-form :inline="true" class="demo-form-inline">
+      <el-form-item>
+        <el-input v-model="searchObj.name" placeholder="讲师名"/>
+      </el-form-item>
+
+      <el-form-item>
+        <el-select v-model="searchObj.level" clearable placeholder="讲师头衔">
+          <el-option :value="1" label="高级讲师"/>
+          <el-option :value="2" label="首席讲师"/>
+        </el-select>
+      </el-form-item>
+
+      <el-form-item label="添加时间">
+        <el-date-picker
+          v-model="searchObj.gmtCreate"
+          type="datetime"
+          placeholder="选择开始时间"
+          value-format="yyyy-MM-dd HH:mm:ss"
+          default-time="00:00:00"
+        />
+      </el-form-item>
+      <el-form-item>
+        <el-date-picker
+          v-model="searchObj.gmtModified"
+          type="datetime"
+          placeholder="选择截止时间"
+          value-format="yyyy-MM-dd HH:mm:ss"
+          default-time="00:00:00"
+        />
+      </el-form-item>
+
+      <el-button type="primary" icon="el-icon-search" @click="getPageList()">查询</el-button>
+      <el-button type="default" @click="resetData()">清空</el-button>
+    </el-form>
+    
     <!-- 表格 -->
     <el-table
       v-loading="listLoading"
@@ -43,6 +78,16 @@
       </el-table-column>
     </el-table>
 
+    <!-- 分页 -->
+    <el-pagination
+      :current-page="page"
+      :page-size="limit"
+      :total="total"
+      style="padding: 30px 0; text-align: center;"
+      layout="total, prev, pager, next, jumper"
+      @current-change="getPageList"
+    />
+
   </div>
 </template>
 
@@ -70,7 +115,8 @@ export default {
      },
      //存放方法的
      methods: {
-         getPageList(){
+         getPageList(page = 1){
+              this.page = page
              //发送请求从后台获取数据
              teacher.getPageList(this.page,this.limit,this.searchObj)
              .then(response=>{
