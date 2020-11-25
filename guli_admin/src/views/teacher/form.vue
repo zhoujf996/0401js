@@ -24,7 +24,30 @@
         <el-input v-model="teacher.intro" :rows="10" type="textarea"/>
       </el-form-item>
 
-      <!-- 讲师头像：TODO -->
+      <!-- 讲师头像：TODO 预留模块-->
+      <el-form-item label="讲师头像">
+        <!-- 头衔缩略图 -->
+        <pan-thumb :image="teacher.avatar"/>
+        <!-- 文件上传按钮 -->
+        <el-button type="primary" icon="el-icon-upload" @click="imagecropperShow=true">更换头像</el-button>
+
+        <!--
+      v-show：是否显示上传组件
+      :key：类似于id，如果一个页面多个图片上传控件，可以做区分
+      :url：后台上传的url地址
+      @close：关闭上传组件
+        @crop-upload-success：上传成功后的回调-->
+        <image-cropper
+          v-show="imagecropperShow"
+          :width="300"
+          :height="300"
+          :key="imagecropperKey"
+          :url="BASE_API+'/oss/file/upload'"
+          field="file"
+          @close="close"
+          @crop-upload-success="cropSuccess"
+        />
+      </el-form-item>
 
       <el-form-item>
         <el-button :disabled="saveBtnDisabled" type="primary" @click="saveOrUpdate">保存</el-button>
@@ -34,23 +57,31 @@
 </template>
 
 <script>
-import teacher from "@/api/edu/teacher"
+import teacher from "@/api/edu/teacher";
+import ImageCropper from "@/components/ImageCropper";
+import PanThumb from "@/components/PanThumb";
 
 const defaultFrom = {
-          name: '',
-          sort: 0,
-          level: 1,
-          career: '',
-          intro: '',
-          avatar: ''
-      }
+  name: "",
+  sort: 0,
+  level: 1,
+  career: "",
+  intro: "",
+  avatar:
+    "https://guli-1124.oss-cn-shenzhen.aliyuncs.com/avatar/2020/11/25/6bfa737e-676c-4398-b3ee-564b96e9568a.jpg?Expires=1606288703&OSSAccessKeyId=TMP.3KhZsT4QUn2sF2zUoZ4eU2hmVfjSmiX2UFmTuKffz4BAKJkyxvHXwkPQBz3X44Rjf1PQPcUGrDwrw7WnbGKuLZQ2BBysc3&Signature=m%2B22GWAZHWVCUh2%2BstAkG9JIPRg%3D&versionId=CAEQFxiBgMC439P2rxciIDc2NWU3ZjkxMzhhMDQ1YzJhZWQ5MjNkY2Q2YTMxNTIx&response-content-type=application%2Foctet-stream"
+};
 
 export default {
-  data () {
+  //声明一下这个插件
+  components: { ImageCropper, PanThumb },
+  data() {
     return {
       teacher: defaultFrom,
-      saveBtnDisabled: false // 不启用disabled， 保存按钮为亮色
-    }
+      saveBtnDisabled: false, // 不启用disabled， 保存按钮为亮色
+      BASE_API: process.env.BASE_API, // 接口API地址
+      imagecropperShow: false, // 是否显示上传组件
+      imagecropperKey: 0 // 上传组件id
+    };
   },
   watch: {
     $route(to, from) {
@@ -58,86 +89,103 @@ export default {
       //我们是不是判断此路由过来的参数是否存在，
       //如果不存在，那就说明是新增
       //如果存在那么说明修改过来的
-      this.init()
+      this.init();
     }
   },
-  created () {// 在加载的时候执行了这个方法，可以调用这个根据ID来插叙的方法
-      // 执行此方法、获取我们的参数
-      this.init()
+  created() {
+    // 在加载的时候执行了这个方法，可以调用这个根据ID来插叙的方法
+    // 执行此方法、获取我们的参数
+    this.init();
   },
   methods: {
-    init(){
-        if(this.$route.params && this.$route.params.id){ // 当加载页面的时候就要获取参数的值了
-            this.selectById(this.$route.params.id)
-        } else{
-            //this.teacher = defaultFrom
-            this.teacher = {...defaultFrom}
-        }
+    init() {
+      if (this.$route.params && this.$route.params.id) {
+        // 当加载页面的时候就要获取参数的值了
+        this.selectById(this.$route.params.id);
+      } else {
+        //this.teacher = defaultFrom
+        this.teacher = { ...defaultFrom };
+      }
     },
     // 1、 怎么判断是否是新增还是修改
     // 2、 根据teacher.id来判断
 
-    saveOrUpdate(){
+    saveOrUpdate() {
       //当点击按钮的时候，让保存按钮为浅色， 不启用
-      this.saveBtnDisabled = true
+      this.saveBtnDisabled = true;
 
-      if(this.teacher.id){
-        this.updateById()
-      } else{
-        this.save()
+      if (this.teacher.id) {
+        this.updateById();
+      } else {
+        this.save();
       }
-
     },
-    save(){
-      teacher.save(this.teacher)
+    save() {
+      teacher
+        .save(this.teacher)
         .then(response => {
           return this.$message({
-            type: 'success',
-            message: '保存成功!'
-          })
+            type: "success",
+            message: "保存成功!"
+          });
         })
         .then(response => {
-          this.$router.push({path : "/teacher/list"})
+          this.$router.push({ path: "/teacher/list" });
         })
         .catch(response => {
           return this.$message({
-            type: 'error',
-            message: '保存失败!'
-          })
+            type: "error",
+            message: "保存失败!"
+          });
+        });
+    },
+    updateById() {
+      teacher
+        .updateById(this.teacher)
+        .then(response => {
+          //修改提示
+          this.$message({
+            type: "success",
+            message: "修改成功"
+          });
         })
+        .then(response => {
+          this.$router.push({ path: "/teacher/list" });
+        })
+        .catch(response => {
+          this.$message({
+            type: "error",
+            message: response.data.message
+          });
+        });
     },
-    updateById(){
-        teacher.updateById(this.teacher)
-          .then(response => {
-            //修改提示
-            this.$message({
-              type:'success',
-              message:'修改成功'
-            })
-          })
-          .then(response => {
-            this.$router.push({path:"/teacher/list"})
-          })
-          .catch(response => {
-            this.$message({
-              type:'error',
-              message:response.data.message
-            })
-          })
+    selectById(id) {
+      teacher
+        .selectById(id)
+        .then(response => {
+          this.teacher = response.data.teacher;
+        })
+        .catch(response => {
+          this.$message({
+            type: "error",
+            message: "获取失败"
+          });
+        });
     },
-    selectById(id){
-        teacher.selectById(id)
-          .then(response => {
-             this.teacher = response.data.teacher
-          }).catch(response => {
-            this.$message({
-              type:'error',
-              message:"获取失败"
-            })
-          })
+    close() {
+      //1.关闭了这个上传图片框
+      this.imagecropperShow = false, // 是否显示上传组件
+     //2.给这个框ID变化一次
+      this.imagecropperKey = this.imagecropperKey + 1
+    },
+    //保存图片成功
+    cropSuccess(data){
+      this.teacher.avatar = data.url
+       //1.关闭了这个上传图片框
+      this.imagecropperShow = false, // 是否显示上传组件
+     //2.给这个框ID变化一次
+      this.imagecropperKey = this.imagecropperKey + 1
     }
   }
-}
+};
 </script>
-
-s
