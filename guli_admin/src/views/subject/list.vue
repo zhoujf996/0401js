@@ -169,7 +169,7 @@ export default {
         .catch(response => {
           //1、把文本框关
           this.dialogFormVisible = false;
-          //2、提示成功
+          //2.提示成功
           this.$message({
             type: "error",
             message: "添加二级分类失败"
