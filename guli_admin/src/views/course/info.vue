@@ -12,16 +12,51 @@
 
     <el-form label-width="120px">
 
-      <el-form-item>
-        <el-button :disabled="saveBtnDisabled" type="primary" @click="next">保存并下一步</el-button>
-      </el-form-item>
+        <el-form-item label="课程标题">
+          <!-- v-model : 双向数据绑定； --> 
+            <el-input v-model="courseInfo.eduCourse.title" placeholder=" 示例：机器学习项目课：从基础到搭建项目视频课程。专业名称注意大小写"/>
+        </el-form-item>
+
+        <!-- 所属分类 TODO -->
+
+        <!-- 课程讲师 TODO -->
+
+        <el-form-item label="总课时">
+            <el-input-number :min="0" v-model="courseInfo.eduCourse.lessonNum" controls-position="right" placeholder="请填写课程的总课时数"/>
+        </el-form-item>
+
+        <!-- 课程简介 TODO -->
+
+        <!-- 课程封面 TODO -->
+
+        <el-form-item label="课程价格">
+            <el-input-number :min="0" v-model="courseInfo.eduCourse.price" controls-position="right" placeholder="免费课程请设置为0元"/> 元
+        </el-form-item>
+
+        <el-form-item>
+            <el-button :disabled="saveBtnDisabled" type="primary" @click="next">保存并下一步</el-button>
+        </el-form-item>
     </el-form>
+
   </div>
 </template>
 <script>
+
+import course from "@/api/edu/course.js"
+
+const eduCourse = {
+  title:'',
+  lessonNum:'',
+  price:''
+}
+const courseDescription = {
+    description:''
+}
+
 export default {
   data() {
     return {
+      courseInfo:{eduCourse, courseDescription},
       saveBtnDisabled: false // 保存按钮是否禁用
     }
   },
@@ -34,7 +69,21 @@ export default {
 
     next() {
       console.log('next')
-      this.$router.push({ path: '/course/chapter/1' })
+      course.saveVo(this.courseInfo)
+        .then(response => {
+            this.$message({
+              type:'success',
+              message:"保存成功"
+            })
+            this.$router.push({ path: '/course/chapter/'+ response.data.id })
+        })
+        .catch(response => {
+            this.$message({
+              type:'error',
+              message:"保存失败"
+            })
+        })
+      
     }
   }
 }
