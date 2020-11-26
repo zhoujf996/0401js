@@ -9,6 +9,12 @@ export default{
       url: `${api_name}/tree`,
       method: 'get'
     })
+  },
+  removeById(id) {
+    return request({
+      url: `${api_name}/${id}`,
+      method: 'delete'
+    })
   }
 
 }
