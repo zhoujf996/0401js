@@ -68,7 +68,19 @@
         <tinymce :height="300" v-model="courseInfo.courseDescription.description"/>
       </el-form-item>
 
-      <!-- 课程封面 TODO -->
+      <!-- 课程封面-->
+        <el-form-item label="课程封面">
+
+          <el-upload
+            :show-file-list="false"
+            :on-success="handleAvatarSuccess"
+            :before-upload="beforeAvatarUpload"
+            :action="BASE_API+'/oss/file/upload?host=cover'"
+            class="avatar-uploader">
+            <img :src="courseInfo.eduCourse.cover">
+          </el-upload>
+
+        </el-form-item>
 
       <el-form-item label="课程价格">
         <el-input-number
@@ -96,7 +108,7 @@ const eduCourse = {
   subjectId: "", //课程的二级分类
   teacherId: "",
   lessonNum: 0,
-  cover: "",
+  cover: process.env.OSS_PATH + "/cover/p1.jpg?Expires=1606542825&OSSAccessKeyId=TMP.3Kg652SKY6EDRxA4w9wA24PpNnpxmDGs2f6VMCciB7z2vrrWM1XMkTrv88U7RgaYaLrJojSBCd9k1HwULnQPK61bW2ENYz&Signature=og0%2FZuTIwbzi7v76q1vCFgOdhfs%3D&versionId=CAEQFxiBgIDCmua0sBciIGQ0MmE0NjJhYTU2MDQ3MmJhYTRlYjIwNmEyZjAwNmNj&response-content-type=application%2Foctet-stream",
   price: 0,
   subjectParentId: 0 //课程的一级分类
 };
@@ -114,7 +126,8 @@ export default {
       saveBtnDisabled: false, // 保存按钮是否禁用
       subjectNestedList: [], // 课程分类的一级类目集合
       subSubjectList: [], // 课程分类二级类目集合
-      teacherList: [] // 讲师列表
+      teacherList: [], // 讲师列表
+      BASE_API: process.env.BASE_API
     };
   },
   //当路由发生变化的时候，我们应该有一个监听，监听获取参数
@@ -177,6 +190,25 @@ export default {
             message: "保存失败"
           });
         });
+    },
+    //上传封面后成功回调的方法
+    handleAvatarSuccess(res, file) {
+      console.log(res)// 上传响应
+      console.log(URL.createObjectURL(file.raw))// base64编码
+      this.courseInfo.eduCourse.cover = res.data.url
+    },
+    //上传封面之前校验的方法
+    beforeAvatarUpload(file) {
+      const isJPG = file.type === 'image/jpeg'
+      const isLt2M = file.size / 1024 / 1024 < 2
+
+      if (!isJPG) {
+        this.$message.error('上传头像图片只能是 JPG 格式!')
+      }
+      if (!isLt2M) {
+        this.$message.error('上传头像图片大小不能超过 2MB!')
+      }
+      return isJPG && isLt2M
     }
   }
 };
