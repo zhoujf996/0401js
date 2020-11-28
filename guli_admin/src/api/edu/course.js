@@ -23,5 +23,12 @@ export default {
       method: 'put',
       data: courseInfo
     })
+  },
+  getPageList(page, limit, searchObj) {
+    return request({
+      url: `${api_name}/${page}/${limit}`,
+      method: 'post',
+      data: searchObj
+    })
   }
 }
