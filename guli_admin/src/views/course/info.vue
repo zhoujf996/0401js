@@ -1,7 +1,5 @@
 <template>
-
   <div class="app-container">
-
     <h2 style="text-align: center;">发布新课程</h2>
 
     <el-steps :active="1" process-status="wait" align-center style="margin-bottom: 40px;">
@@ -11,80 +9,149 @@
     </el-steps>
 
     <el-form label-width="120px">
+      <el-form-item label="课程标题">
+        <!-- v-model : 双向数据绑定； -->
+        <el-input
+          v-model="courseInfo.eduCourse.title"
+          placeholder=" 示例：机器学习项目课：从基础到搭建项目视频课程。专业名称注意大小写"
+        />
+      </el-form-item>
 
-        <el-form-item label="课程标题">
-          <!-- v-model : 双向数据绑定； --> 
-            <el-input v-model="courseInfo.eduCourse.title" placeholder=" 示例：机器学习项目课：从基础到搭建项目视频课程。专业名称注意大小写"/>
+      <!-- 所属分类 TODO -->
+      <el-form-item label="课程类别">
+            <el-select
+                @change="subjectLevelOneChanged"
+                v-model="courseInfo.eduCourse.subjectParentId"
+                placeholder="请选择">
+                <el-option
+                v-for="subject in subjectNestedList"
+                :key="subject.id"
+                :label="subject.title"
+                :value="subject.id"/>
+            </el-select>
+            <!-- 二级分类 -->
+            <el-select v-model="courseInfo.eduCourse.subjectId" placeholder="请选择">
+            <el-option
+                v-for="subject in subSubjectList"
+                :key="subject.value"
+                :label="subject.title"
+                :value="subject.id"/>
+            </el-select>
         </el-form-item>
 
-        <!-- 所属分类 TODO -->
+      <!-- 课程讲师 TODO -->
 
-        <!-- 课程讲师 TODO -->
+      <el-form-item label="总课时">
+        <el-input-number
+          :min="0"
+          v-model="courseInfo.eduCourse.lessonNum"
+          controls-position="right"
+          placeholder="请填写课程的总课时数"
+        />
+      </el-form-item>
 
-        <el-form-item label="总课时">
-            <el-input-number :min="0" v-model="courseInfo.eduCourse.lessonNum" controls-position="right" placeholder="请填写课程的总课时数"/>
-        </el-form-item>
+      <!-- 课程简介 TODO -->
 
-        <!-- 课程简介 TODO -->
+      <!-- 课程封面 TODO -->
 
-        <!-- 课程封面 TODO -->
+      <el-form-item label="课程价格">
+        <el-input-number
+          :min="0"
+          v-model="courseInfo.eduCourse.price"
+          controls-position="right"
+          placeholder="免费课程请设置为0元"
+        />元
+      </el-form-item>
 
-        <el-form-item label="课程价格">
-            <el-input-number :min="0" v-model="courseInfo.eduCourse.price" controls-position="right" placeholder="免费课程请设置为0元"/> 元
-        </el-form-item>
-
-        <el-form-item>
-            <el-button :disabled="saveBtnDisabled" type="primary" @click="next">保存并下一步</el-button>
-        </el-form-item>
+      <el-form-item>
+        <el-button :disabled="saveBtnDisabled" type="primary" @click="next">保存并下一步</el-button>
+      </el-form-item>
     </el-form>
-
   </div>
 </template>
 <script>
-
-import course from "@/api/edu/course.js"
+import course from "@/api/edu/course.js";
+import subject from "@/api/edu/subject"
 
 const eduCourse = {
-  title:'',
-  lessonNum:'',
-  price:''
-}
+  title: "",
+  subjectId: "", //课程的二级分类
+  teacherId: "",
+  lessonNum: 0,
+  cover: "",
+  price: 0,
+  subjectParentId: 0 //课程的一级分类
+};
+
 const courseDescription = {
-    description:''
-}
+  description: ""
+};
 
 export default {
   data() {
     return {
-      courseInfo:{eduCourse, courseDescription},
-      saveBtnDisabled: false // 保存按钮是否禁用
+      courseInfo: { eduCourse, courseDescription },
+      saveBtnDisabled: false, // 保存按钮是否禁用
+      subjectNestedList:[], // 课程分类的一级类目集合
+      subSubjectList:[], // 课程分类二级类目集合
+    };
+  },
+  //当路由发生变化的时候，我们应该有一个监听，监听获取参数
+  watch: {
+     $route(to, from) {
+      console.log('watch $route')
+      this.init()
     }
   },
-
   created() {
-    console.log('info created')
+    console.log("info created");
+    //初始化
+    this.init();
   },
 
   methods: {
-
+    init() {
+      //1.判断是否有参数
+      //2.如果有，回显
+      //3.如果没有，新增
+      //4.课程分类一级列表获取
+      this.initSubjectList();
+    },
+    //初始化，课程分类列表
+    initSubjectList() {
+       subject.getNestedTreeList()
+          .then(response =>{
+              this.subjectNestedList = response.data.subjectList
+          })
+    },
+    subjectLevelOneChanged(value){
+        //当一级分类点击发生变化的时候、触发的事件
+        //传递一级分类变化的value值 =  subjectId
+        //遍历课程分类的subjectList，当一级分类的Id ==  value值的时候，把此一级分类的children 赋值给二级分类的列表
+        for(var i = 0; i < this.subjectNestedList.length; i++){
+            if(this.subjectNestedList[i].id == value){
+                this.subSubjectList = this.subjectNestedList[i].children 
+            }
+        }
+    },
     next() {
-      console.log('next')
-      course.saveVo(this.courseInfo)
+      console.log("next");
+      course
+        .saveVo(this.courseInfo)
         .then(response => {
-            this.$message({
-              type:'success',
-              message:"保存成功"
-            })
-            this.$router.push({ path: '/course/chapter/'+ response.data.id })
+          this.$message({
+            type: "success",
+            message: "保存成功"
+          });
+          this.$router.push({ path: "/course/chapter/" + response.data.id });
         })
         .catch(response => {
-            this.$message({
-              type:'error',
-              message:"保存失败"
-            })
-        })
-      
+          this.$message({
+            type: "error",
+            message: "保存失败"
+          });
+        });
     }
   }
-}
+};
 </script>
