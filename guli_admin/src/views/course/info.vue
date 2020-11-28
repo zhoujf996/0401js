@@ -63,7 +63,10 @@
         />
       </el-form-item>
 
-      <!-- 课程简介 TODO -->
+      <!-- 课程简介-->
+      <el-form-item label="课程简介">
+        <tinymce :height="300" v-model="courseInfo.courseDescription.description"/>
+      </el-form-item>
 
       <!-- 课程封面 TODO -->
 
@@ -86,7 +89,7 @@
 import course from "@/api/edu/course.js";
 import subject from "@/api/edu/subject";
 import teacher from "@/api/edu/teacher";
-
+import Tinymce from "@/components/Tinymce";
 
 const eduCourse = {
   title: "",
@@ -103,6 +106,8 @@ const courseDescription = {
 };
 
 export default {
+  components: { Tinymce },
+
   data() {
     return {
       courseInfo: { eduCourse, courseDescription },
@@ -134,12 +139,11 @@ export default {
       this.initSubjectList();
       this.initTeacherList();
     },
-     initTeacherList(){
-       teacher.getList()
-       .then(response=>{
-         this.teacherList = response.data.items
-       })
-     },
+    initTeacherList() {
+      teacher.getList().then(response => {
+        this.teacherList = response.data.items;
+      });
+    },
     //初始化，课程分类列表
     initSubjectList() {
       subject.getNestedTreeList().then(response => {
@@ -177,3 +181,10 @@ export default {
   }
 };
 </script>
+
+
+<style scoped>
+.tinymce-container {
+  line-height: 29px;
+}
+</style>
