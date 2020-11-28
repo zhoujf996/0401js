@@ -103,7 +103,7 @@ const eduCourse = {
     subjectId: '', // 课程的二级分类
     teacherId: '',
     lessonNum: 0,
-    cover:process.env.OSS_PATH +"/cover/p1.jpg?Expires=1606542825&OSSAccessKeyId=TMP.3Kg652SKY6EDRxA4w9wA24PpNnpxmDGs2f6VMCciB7z2vrrWM1XMkTrv88U7RgaYaLrJojSBCd9k1HwULnQPK61bW2ENYz&Signature=og0%2FZuTIwbzi7v76q1vCFgOdhfs%3D&versionId=CAEQFxiBgIDCmua0sBciIGQ0MmE0NjJhYTU2MDQ3MmJhYTRlYjIwNmEyZjAwNmNj&response-content-type=application%2Foctet-stream",
+    cover: process.env.OSS_PATH + '/cover/1.jpg?Expires=1606568921&OSSAccessKeyId=TMP.3Kg652SKY6EDRxA4w9wA24PpNnpxmDGs2f6VMCciB7z2vrrWM1XMkTrv88U7RgaYaLrJojSBCd9k1HwULnQPK61bW2ENYz&Signature=T%2BbSv3XCl4sH%2BQznfMgEhJba7Bg%3D&versionId=CAEQFxiBgICpzIK7sBciIDE2YTU3NjJhYzJmZjRjMWY4YWRhOGJlN2RkM2E4MGUw&response-content-type=application%2Foctet-stream',
     price: 0,
     subjectParentId:'' // 课程的一级分类
 

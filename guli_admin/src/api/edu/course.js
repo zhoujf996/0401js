@@ -16,5 +16,12 @@ export default {
       url: `${api_name}/${id}`,
       method: 'get'
     })
+  },
+  updateVo(courseInfo) {
+    return request({
+      url: `${api_name}/updateVo`,
+      method: 'put',
+      data: courseInfo
+    })
   }
 }
