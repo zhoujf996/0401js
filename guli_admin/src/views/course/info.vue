@@ -17,29 +17,42 @@
         />
       </el-form-item>
 
-      <!-- 所属分类 TODO -->
+      <!-- 所属分类 -->
       <el-form-item label="课程类别">
-            <el-select
-                @change="subjectLevelOneChanged"
-                v-model="courseInfo.eduCourse.subjectParentId"
-                placeholder="请选择">
-                <el-option
-                v-for="subject in subjectNestedList"
-                :key="subject.id"
-                :label="subject.title"
-                :value="subject.id"/>
-            </el-select>
-            <!-- 二级分类 -->
-            <el-select v-model="courseInfo.eduCourse.subjectId" placeholder="请选择">
-            <el-option
-                v-for="subject in subSubjectList"
-                :key="subject.value"
-                :label="subject.title"
-                :value="subject.id"/>
-            </el-select>
-        </el-form-item>
+        <el-select
+          @change="subjectLevelOneChanged"
+          v-model="courseInfo.eduCourse.subjectParentId"
+          placeholder="请选择"
+        >
+          <el-option
+            v-for="subject in subjectNestedList"
+            :key="subject.id"
+            :label="subject.title"
+            :value="subject.id"
+          />
+        </el-select>
+        <!-- 二级分类 -->
+        <el-select v-model="courseInfo.eduCourse.subjectId" placeholder="请选择">
+          <el-option
+            v-for="subject in subSubjectList"
+            :key="subject.value"
+            :label="subject.title"
+            :value="subject.id"
+          />
+        </el-select>
+      </el-form-item>
 
-      <!-- 课程讲师 TODO -->
+      <!-- 课程讲师 -->
+      <el-form-item label="课程讲师">
+        <el-select v-model="courseInfo.eduCourse.teacherId" placeholder="请选择">
+          <el-option
+            v-for="teacher in teacherList"
+            :key="teacher.id"
+            :label="teacher.name"
+            :value="teacher.id"
+          />
+        </el-select>
+      </el-form-item>
 
       <el-form-item label="总课时">
         <el-input-number
@@ -71,7 +84,9 @@
 </template>
 <script>
 import course from "@/api/edu/course.js";
-import subject from "@/api/edu/subject"
+import subject from "@/api/edu/subject";
+import teacher from "@/api/edu/teacher";
+
 
 const eduCourse = {
   title: "",
@@ -92,15 +107,16 @@ export default {
     return {
       courseInfo: { eduCourse, courseDescription },
       saveBtnDisabled: false, // 保存按钮是否禁用
-      subjectNestedList:[], // 课程分类的一级类目集合
-      subSubjectList:[], // 课程分类二级类目集合
+      subjectNestedList: [], // 课程分类的一级类目集合
+      subSubjectList: [], // 课程分类二级类目集合
+      teacherList: [] // 讲师列表
     };
   },
   //当路由发生变化的时候，我们应该有一个监听，监听获取参数
   watch: {
-     $route(to, from) {
-      console.log('watch $route')
-      this.init()
+    $route(to, from) {
+      console.log("watch $route");
+      this.init();
     }
   },
   created() {
@@ -116,23 +132,29 @@ export default {
       //3.如果没有，新增
       //4.课程分类一级列表获取
       this.initSubjectList();
+      this.initTeacherList();
     },
+     initTeacherList(){
+       teacher.getList()
+       .then(response=>{
+         this.teacherList = response.data.items
+       })
+     },
     //初始化，课程分类列表
     initSubjectList() {
-       subject.getNestedTreeList()
-          .then(response =>{
-              this.subjectNestedList = response.data.subjectList
-          })
+      subject.getNestedTreeList().then(response => {
+        this.subjectNestedList = response.data.subjectList;
+      });
     },
-    subjectLevelOneChanged(value){
-        //当一级分类点击发生变化的时候、触发的事件
-        //传递一级分类变化的value值 =  subjectId
-        //遍历课程分类的subjectList，当一级分类的Id ==  value值的时候，把此一级分类的children 赋值给二级分类的列表
-        for(var i = 0; i < this.subjectNestedList.length; i++){
-            if(this.subjectNestedList[i].id == value){
-                this.subSubjectList = this.subjectNestedList[i].children 
-            }
+    subjectLevelOneChanged(value) {
+      //当一级分类点击发生变化的时候、触发的事件
+      //传递一级分类变化的value值 =  subjectId
+      //遍历课程分类的subjectList，当一级分类的Id ==  value值的时候，把此一级分类的children 赋值给二级分类的列表
+      for (var i = 0; i < this.subjectNestedList.length; i++) {
+        if (this.subjectNestedList[i].id == value) {
+          this.subSubjectList = this.subjectNestedList[i].children;
         }
+      }
     },
     next() {
       console.log("next");
