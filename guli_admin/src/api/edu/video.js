@@ -9,5 +9,18 @@ export default {
       method: 'post',
       data: video
     })
+  },
+  getVideoById(id) {
+    return request({
+      url: `${api_name}/${id}`,
+      method: 'get'
+    })
+  },
+  updateById(video) {
+    return request({
+      url: `${api_name}/update`,
+      method: 'put',
+      data: video
+    })
   }
 }

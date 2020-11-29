@@ -31,7 +31,7 @@
             <p>
               {{ video.title }}
               <span class="acts">
-                <el-button type="text">编辑</el-button>
+                <el-button type="text" @click="editVideo(video.id)">编辑</el-button>
                 <el-button type="text">删除</el-button>
               </span>
             </p>
@@ -238,6 +238,22 @@ export default {
         this.helpSaveVideo();
       });
     },
+    updateById(){
+      video.updateById(this.video)
+      .then(response=>{
+          this.$message({
+          type: "success",
+          message: "修改成功"
+        });
+        this.helpSaveVideo()
+      })
+    },
+    editVideo(id) {
+      this.dialogVideoFormVisible = true;
+      video.getVideoById(id).then(resposne => {
+        this.video = resposne.data.video;
+      });
+    },
     helpSaveVideo() {
       this.dialogVideoFormVisible = false; // 如果保存成功则关闭对话框
       this.getChapterAndVideoById(this.courseId), // 刷新列表
@@ -246,6 +262,14 @@ export default {
       this.isFree = 0; //重置章节是否免费
       this.video.videoSourceId = ""; // 重置视频资源id
       this.saveVideoBtnDisabled = false;
+    },
+    saveOrUpdateVideo() {
+      this.saveVideoBtnDisabled = true;//按钮不可用
+      if(this.video.id){
+        this.updateById()
+      }else{
+        this.saveVideo()
+      }
     }
   }
 };
