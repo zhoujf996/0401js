@@ -32,7 +32,7 @@
               {{ video.title }}
               <span class="acts">
                 <el-button type="text" @click="editVideo(video.id)">编辑</el-button>
-                <el-button type="text">删除</el-button>
+                <el-button type="text" @click="removeVideo(video.id)">删除</el-button>
               </span>
             </p>
           </li>
@@ -253,6 +253,28 @@ export default {
       video.getVideoById(id).then(resposne => {
         this.video = resposne.data.video;
       });
+    },
+    removeVideo(videoId){
+       this.$confirm('此操作将永久删除该记录, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        return video.removeVideoById(videoId)
+      }).then(() => {
+        this.getChapterAndVideoById(this.courseId), // 刷新列表
+        this.$message({
+          type: 'success',
+          message: '删除成功!'
+        })
+      }).catch((response) => { // 失败
+        if (response === 'cancel') {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          })
+        }
+      })
     },
     helpSaveVideo() {
       this.dialogVideoFormVisible = false; // 如果保存成功则关闭对话框

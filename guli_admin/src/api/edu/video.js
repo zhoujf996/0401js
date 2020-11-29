@@ -22,5 +22,11 @@ export default {
       method: 'put',
       data: video
     })
+  },
+  removeVideoById(videoId) {
+    return request({
+      url: `${api_name}/${videoId}`,
+      method: 'delete'
+    })
   }
 }
