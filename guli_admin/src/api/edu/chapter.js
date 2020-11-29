@@ -28,6 +28,12 @@ export default {
       method: 'put',
       data: chapter
     })
+  },
+  removeById(id) {
+    return request({
+      url: `${api_name}/${id}`,
+      method: 'delete'
+    })
   }
 
 }

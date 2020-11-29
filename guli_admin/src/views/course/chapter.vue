@@ -18,7 +18,7 @@
           <span class="acts">
             <el-button type="text">添加课时</el-button>
             <el-button type="text" @click="editChapter(chapter.id)">编辑</el-button>	
-            <el-button type="text">删除</el-button>
+            <el-button type="text" @click="removeChapter(chapter.id)">删除</el-button>
           </span>
         </p>
 
@@ -135,6 +135,33 @@ export default {
       chapter.getChapterAndVideoById(id).then(reponse => {
         this.chapterNestedList = reponse.data.list;
       });
+    },
+    removeChapter(id) {
+      this.$confirm('此操作将永久删除该记录, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        return chapter.removeById(id)
+      }).then(() => {
+        this.getChapterAndVideoById(this.courseId)// 刷新列表
+        this.$message({
+          type: 'success',
+          message: '删除成功!'
+        })
+      }).catch((response) => { // 失败
+        if (response === 'cancel') {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          })
+        } else {
+          this.$message({
+            type: 'error',
+            message: response.message
+          })
+        }
+      })
     },
     previous() {
       console.log("previous");
