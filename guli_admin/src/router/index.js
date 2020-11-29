@@ -100,7 +100,7 @@ export const constantRouterMap = [
         meta: { title: '课程列表', icon: 'table' }
       },
       {
-        path: '/info',
+        path: 'info', //bug:如果在这使用 /:从根目录开始算起，http://localhost:9528/course/info
         name: '发布课程',
         component: () => import('@/views/course/info'),
         meta: { title: '发布课程', icon: 'tree' }
