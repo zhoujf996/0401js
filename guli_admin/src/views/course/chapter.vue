@@ -17,7 +17,7 @@
           {{ chapter.title }}
           <span class="acts">
             <el-button type="text">添加课时</el-button>
-            <el-button style type="text">编辑</el-button>
+            <el-button type="text" @click="editChapter(chapter.id)">编辑</el-button>	
             <el-button type="text">删除</el-button>
           </span>
         </p>
@@ -94,7 +94,11 @@ export default {
     },
     saveOrUpdate() {
       //判断保存还是修改
-      this.saveChapter();
+      if(this.chapter.id){
+         this.updateById()
+      }else{
+        this.saveChapter();
+      }
     },
     saveChapter() {
       this.chapter.courseId=this.courseId
@@ -108,6 +112,24 @@ export default {
         //刷新页面
         this.getChapterAndVideoById(this.courseId)
       });
+    },
+    editChapter(id){
+      //弹框
+      this.dialogChapterFormVisible = true;
+      chapter.getChapterById(id)
+      .then(response=>{
+           this.chapter = response.data.chapter
+      })
+    },
+    updateById(){
+      chapter.updateById(this.chapter)
+      .then(response=>{
+         this.$message({
+          type: "success",
+          message: "成功"
+        });
+        this.helpSave()
+      })
     },
     getChapterAndVideoById(id) {
       chapter.getChapterAndVideoById(id).then(reponse => {
