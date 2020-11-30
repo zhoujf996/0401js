@@ -58,7 +58,10 @@ export default {
     getCoursePublishVoById(id){
         course.getCoursePublishVoById(id)
           .then(response => {
+              //发布课程查询详情 vo实现：前端获取返回信息
              //this.coursePublish = response.data.coursePublishVo
+
+             //发布课程查询详情 map实现：前端获取返回信息
              this.coursePublish = response.data
           })
     },
