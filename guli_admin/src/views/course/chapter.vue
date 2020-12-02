@@ -76,7 +76,27 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item label="上传视频">
-          <!-- TODO -->
+          
+          <el-upload
+                :on-success="handleVodUploadSuccess"
+                :on-remove="handleVodRemove"
+                :before-remove="beforeVodRemove"
+                :on-exceed="handleUploadExceed"
+                :file-list="fileList"
+                :action="BASE_API+'/vod/upload'"
+                :limit="1"
+                class="upload-demo">
+          <el-button size="small" type="primary">上传视频</el-button>
+          <el-tooltip placement="right-end">
+              <div slot="content">最大支持1G，<br>
+                  支持3GP、ASF、AVI、DAT、DV、FLV、F4V、<br>
+                  GIF、M2T、M4V、MJ2、MJPEG、MKV、MOV、MP4、<br>
+                  MPE、MPG、MPEG、MTS、OGG、QT、RM、RMVB、<br>
+                  SWF、TS、VOB、WMV、WEBM 等视频格式上传</div>
+              <i class="el-icon-question"/>
+          </el-tooltip>
+          </el-upload>
+
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -116,7 +136,9 @@ export default {
         courseId: "",
         videoSourceId: ""
       },
-      saveVideoBtnDisabled: false
+      saveVideoBtnDisabled: false,
+      fileList:[],
+      BASE_API: process.env.BASE_API
     };
   },
 
@@ -221,6 +243,14 @@ export default {
         (this.chapter.title = ""), // 重置章节标题
         (this.chapter.sort = 0), // 重置章节标题
         (this.saveBtnDisabled = false);
+    },
+    handleVodUploadSuccess(response, file, fileList){
+        this.video.videoSourceId=response.data.videoSourceId
+        file.name
+    },
+    //视图上传多于一个视频
+    handleUploadExceed(files, fileList) {
+      this.$message.warning('想要重新上传视频，请先删除已上传的视频')
     },
     //保存并修改一个方法：判断是否有videoId
     saveOrUpdateVideo() {
