@@ -76,27 +76,28 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item label="上传视频">
-          
           <el-upload
-                :on-success="handleVodUploadSuccess"
-                :on-remove="handleVodRemove"
-                :before-remove="beforeVodRemove"
-                :on-exceed="handleUploadExceed"
-                :file-list="fileList"
-                :action="BASE_API+'/vod/upload'"
-                :limit="1"
-                class="upload-demo">
-          <el-button size="small" type="primary">上传视频</el-button>
-          <el-tooltip placement="right-end">
-              <div slot="content">最大支持1G，<br>
-                  支持3GP、ASF、AVI、DAT、DV、FLV、F4V、<br>
-                  GIF、M2T、M4V、MJ2、MJPEG、MKV、MOV、MP4、<br>
-                  MPE、MPG、MPEG、MTS、OGG、QT、RM、RMVB、<br>
-                  SWF、TS、VOB、WMV、WEBM 等视频格式上传</div>
+            :on-success="handleVodUploadSuccess"
+            :on-remove="handleVodRemove"
+            :before-remove="beforeVodRemove"
+            :on-exceed="handleUploadExceed"
+            :file-list="fileList"
+            :action="BASE_API+'/vod/upload'"
+            :limit="1"
+            class="upload-demo"
+          >
+            <el-button size="small" type="primary">上传视频</el-button>
+            <el-tooltip placement="right-end">
+              <div slot="content">
+                最大支持1G，
+                <br>支持3GP、ASF、AVI、DAT、DV、FLV、F4V、
+                <br>GIF、M2T、M4V、MJ2、MJPEG、MKV、MOV、MP4、
+                <br>MPE、MPG、MPEG、MTS、OGG、QT、RM、RMVB、
+                <br>SWF、TS、VOB、WMV、WEBM 等视频格式上传
+              </div>
               <i class="el-icon-question"/>
-          </el-tooltip>
+            </el-tooltip>
           </el-upload>
-
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -112,6 +113,7 @@
 <script>
 import chapter from "@/api/edu/chapter";
 import video from "@/api/edu/video";
+import vod from "@/api/edu/vod";
 
 export default {
   data() {
@@ -137,7 +139,7 @@ export default {
         videoSourceId: ""
       },
       saveVideoBtnDisabled: false,
-      fileList:[],
+      fileList: [],
       BASE_API: process.env.BASE_API
     };
   },
@@ -244,13 +246,26 @@ export default {
         (this.chapter.sort = 0), // 重置章节标题
         (this.saveBtnDisabled = false);
     },
-    handleVodUploadSuccess(response, file, fileList){
-        this.video.videoSourceId=response.data.videoSourceId
-        file.name
+    handleVodUploadSuccess(response, file, fileList) {
+      this.video.videoSourceId = response.data.videoSourceId;
+      file.name;
     },
     //视图上传多于一个视频
     handleUploadExceed(files, fileList) {
-      this.$message.warning('想要重新上传视频，请先删除已上传的视频')
+      this.$message.warning("想要重新上传视频，请先删除已上传的视频");
+    },
+    beforeVodRemove(file, fileList) {
+      return this.$confirm(`确定移除 ${file.name}？`);
+    },
+    handleVodRemove(file, fileList) {
+      console.log(file);
+      vod.removeById(this.video.videoSourceId).then(response => {
+        this.video.videoSourceId = ''
+        this.$message({
+          type: "success",
+          message: response.message
+        });
+      });
     },
     //保存并修改一个方法：判断是否有videoId
     saveOrUpdateVideo() {
@@ -268,15 +283,14 @@ export default {
         this.helpSaveVideo();
       });
     },
-    updateById(){
-      video.updateById(this.video)
-      .then(response=>{
-          this.$message({
+    updateById() {
+      video.updateById(this.video).then(response => {
+        this.$message({
           type: "success",
           message: "修改成功"
         });
-        this.helpSaveVideo()
-      })
+        this.helpSaveVideo();
+      });
     },
     editVideo(id) {
       this.dialogVideoFormVisible = true;
@@ -284,27 +298,31 @@ export default {
         this.video = resposne.data.video;
       });
     },
-    removeVideo(videoId){
-       this.$confirm('此操作将永久删除该记录, 是否继续?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        return video.removeVideoById(videoId)
-      }).then(() => {
-        this.getChapterAndVideoById(this.courseId), // 刷新列表
-        this.$message({
-          type: 'success',
-          message: '删除成功!'
-        })
-      }).catch((response) => { // 失败
-        if (response === 'cancel') {
-          this.$message({
-            type: 'info',
-            message: '已取消删除'
-          })
-        }
+    removeVideo(videoId) {
+      this.$confirm("此操作将永久删除该记录, 是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
       })
+        .then(() => {
+          return video.removeVideoById(videoId);
+        })
+        .then(() => {
+          this.getChapterAndVideoById(this.courseId), // 刷新列表
+            this.$message({
+              type: "success",
+              message: "删除成功!"
+            });
+        })
+        .catch(response => {
+          // 失败
+          if (response === "cancel") {
+            this.$message({
+              type: "info",
+              message: "已取消删除"
+            });
+          }
+        });
     },
     helpSaveVideo() {
       this.dialogVideoFormVisible = false; // 如果保存成功则关闭对话框
@@ -313,14 +331,15 @@ export default {
       this.video.sort = 0; // 重置章节标题
       this.isFree = 0; //重置章节是否免费
       this.video.videoSourceId = ""; // 重置视频资源id
+      this.fileList = [];
       this.saveVideoBtnDisabled = false;
     },
     saveOrUpdateVideo() {
-      this.saveVideoBtnDisabled = true;//按钮不可用
-      if(this.video.id){
-        this.updateById()
-      }else{
-        this.saveVideo()
+      this.saveVideoBtnDisabled = true; //按钮不可用
+      if (this.video.id) {
+        this.updateById();
+      } else {
+        this.saveVideo();
       }
     }
   }
