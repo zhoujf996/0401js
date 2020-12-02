@@ -136,7 +136,8 @@ export default {
         isFree: 0,
         chapterId: "",
         courseId: "",
-        videoSourceId: ""
+        videoSourceId: "",
+        videoOriginalName: ""
       },
       saveVideoBtnDisabled: false,
       fileList: [],
@@ -248,7 +249,7 @@ export default {
     },
     handleVodUploadSuccess(response, file, fileList) {
       this.video.videoSourceId = response.data.videoSourceId;
-      file.name;
+      this.video.videoOriginalName = file.name;
     },
     //视图上传多于一个视频
     handleUploadExceed(files, fileList) {
@@ -260,7 +261,9 @@ export default {
     handleVodRemove(file, fileList) {
       console.log(file);
       vod.removeById(this.video.videoSourceId).then(response => {
-        this.video.videoSourceId = ''
+        this.video.videoSourceId = "";
+        this.video.videoOriginalName = "";
+        this.fileList = [];
         this.$message({
           type: "success",
           message: response.message
@@ -296,6 +299,9 @@ export default {
       this.dialogVideoFormVisible = true;
       video.getVideoById(id).then(resposne => {
         this.video = resposne.data.video;
+        if (this.video.videoOriginalName) {
+          this.fileList = [{ name: this.video.videoOriginalName }];
+        }
       });
     },
     removeVideo(videoId) {
@@ -331,6 +337,7 @@ export default {
       this.video.sort = 0; // 重置章节标题
       this.isFree = 0; //重置章节是否免费
       this.video.videoSourceId = ""; // 重置视频资源id
+      this.video.videoOriginalName = "";
       this.fileList = [];
       this.saveVideoBtnDisabled = false;
     },
